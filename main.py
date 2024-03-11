@@ -1,23 +1,18 @@
 # Local Library import
 from data import return_data
+from scraper_settings import ScraperSettings
+from video_downloader import download_video
 
 # Standard library imports
 import logging
 import threading
 import time
-from urllib.request import urlopen
 
 # Third-party library imports
 import requests
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from dataclasses import dataclass
-from colorama import Fore
-from scraper_settings import ScraperSettings
-from video_downloader import download_video
-
 
 # Suppress Selenium log messages
 logging.getLogger().setLevel(logging.ERROR)
