@@ -10,6 +10,10 @@ import requests
 from bs4 import BeautifulSoup
 from colorama import Fore
 
+__all__: tuple[str, ...] = (
+    "download_video"
+)
+
 def download_video(link: str, id: int) -> None:
     """
     Download the tiktok video as a mp4
