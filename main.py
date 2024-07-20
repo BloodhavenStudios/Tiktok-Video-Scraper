@@ -1,21 +1,43 @@
-# Local Library import
-from data import return_data
-from scraper_settings import ScraperSettings
-from video_downloader import download_video
+""" 
+© 2024 Bloodhaven Studios. All rights reserved.
+This code is part of https://github.com/BloodhavenStudios/Tiktok-Video-Scraper.
 
-# Standard library imports
+Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+Main Module for Scraper.
+"""
 import logging
 import threading
 import time
-
-# Third-party library imports
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from data import ScraperSettings
+from scraper_functions import download_video
 
-# Suppress Selenium log messages
-logging.getLogger().setLevel(logging.ERROR)
+# Logging Configuration
+# DO NOT TOUCH
+logging.getLogger("selenium").setLevel(logging.CRITICAL)
+logging.getLogger("urllib3").setLevel(logging.CRITICAL)
+
+logging.basicConfig(
+    filename="output.log",
+    filemode="w",
+    level=logging.DEBUG,
+    format='[%(levelname)s] %(message)s'
+)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(levelname)s] %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+__all__ = [
+    "ScraperSettings"
+]
 
 # Create driver instance and options
 options = Options()
@@ -26,6 +48,8 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 driver = webdriver.Chrome(options=options)
 driver.get(ScraperSettings.account_link)
+
+logging.info("Scraping Account: %s", ScraperSettings.account_link)
 
 # Check for login popup/ something went wrong button
 # Continue as Guest
@@ -54,20 +78,21 @@ except:
 screen_height = driver.execute_script("return window.screen.height")
 i = 1
 while(True):
-    driver.execute_script("window.scrollTo(0, {screen_height}*({i}*2));".format(screen_height=screen_height, i=i))  
+    driver.execute_script(f"window.scrollTo(0, {screen_height}*({i}*2));")
     i += 1
     time.sleep(ScraperSettings.scroll_speed)
     scroll_height = driver.execute_script("return document.body.scrollHeight;")  
     if (screen_height) * i > scroll_height:
-        break 
+        break
 
 # Get all video links
-with open("script.js", "r") as file:
+with open(file="script.js", mode="r", encoding="UTF-8") as file:
     script = file.read()
 
 urls_to_download = driver.execute_script(script)
 
 print(f"Found: {len(urls_to_download)} videos.")
+logging.info("Found: %s videos.", len(urls_to_download))
 
 if not ScraperSettings.download_most_recent_videos_first:
     urls_to_download = reversed(urls_to_download)
